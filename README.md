@@ -36,3 +36,4 @@ MIT - Chuck Norris doesn't need a license. The license needs Chuck Norris.
 ---
 
 Built with roundhouse kicks by [PowerBI.tips](https://powerbi.tips)
+
