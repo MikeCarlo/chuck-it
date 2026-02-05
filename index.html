@@ -242,6 +242,25 @@
       pointer-events: none;
     }
 
+    .cowboy-hat {
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%) rotate(-5deg);
+      font-size: 120px;
+      z-index: 10;
+      filter: drop-shadow(3px 3px 5px rgba(0,0,0,0.5));
+      pointer-events: none;
+      animation: hatBounce 0.5s ease-out;
+    }
+
+    @keyframes hatBounce {
+      0% { top: -100px; opacity: 0; }
+      60% { top: 0px; }
+      80% { top: -10px; }
+      100% { top: -20px; opacity: 1; }
+    }
+
     .share-section {
       margin-top: 30px;
     }
@@ -500,6 +519,7 @@
     <div class="result-section" id="resultSection">
       <div class="image-container" id="imageContainer">
         <canvas id="generatedImage" class="generated-image" width="512" height="512"></canvas>
+        <div class="cowboy-hat">🤠</div>
         <div class="joke-overlay" id="jokeOverlay">
           <p class="joke-text" id="jokeText" contenteditable="true"></p>
           <span class="drag-hint">↕ Drag to move • Click text to edit</span>
@@ -832,6 +852,15 @@
 
       // Draw image
       ctx.drawImage(srcCanvas, 0, 0);
+
+      // Draw cowboy hat emoji at top
+      ctx.font = '120px serif';
+      ctx.textAlign = 'center';
+      ctx.save();
+      ctx.translate(canvas.width / 2, 60);
+      ctx.rotate(-5 * Math.PI / 180);
+      ctx.fillText('🤠', 0, 0);
+      ctx.restore();
 
       // Add dark overlay behind text area
       ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
