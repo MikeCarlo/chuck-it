@@ -22,7 +22,6 @@
 
     body {
       min-height: 100vh;
-      background: url('https://images.unsplash.com/photo-1500964757637-c85e8a162699?w=1920&q=80') center center / cover no-repeat fixed;
       font-family: 'Oswald', sans-serif;
       color: #fff;
       display: flex;
@@ -32,6 +31,17 @@
       padding: 20px;
       position: relative;
       overflow-x: hidden;
+      background: #1a0a00;
+    }
+
+    .video-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -2;
     }
 
     body::before {
@@ -41,9 +51,9 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(26, 10, 0, 0.7);
+      background: rgba(26, 10, 0, 0.6);
       pointer-events: none;
-      z-index: 0;
+      z-index: -1;
     }
 
     .container {
@@ -480,6 +490,9 @@
   </style>
 </head>
 <body>
+  <video class="video-bg" autoplay muted loop playsinline>
+    <source src="background.mp4" type="video/mp4">
+  </video>
   <div class="container">
     <div class="texas-star" style="display: flex; justify-content: center; gap: 20px;">🔫<span style="display: inline-block; transform: scaleX(-1);">🔫</span></div>
     <h1>CHUCK IT!</h1>
