@@ -692,7 +692,7 @@
     ];
 
     async function generateJoke(topic) {
-      const prompt = `You are a comedy writer. Create ONE short, punchy Chuck Norris joke about "${topic}". Keep it under 15 words. Make it absurd and funny. Just respond with the joke, nothing else.`;
+      const prompt = `Create ONE Chuck Norris joke about "${topic}". One sentence only. No explanations, notes, or commentary. Just the joke.`;
       
       const response = await llmEngine.chat.completions.create({
         messages: [{ role: 'user', content: prompt }],
@@ -700,7 +700,15 @@
         temperature: 0.9,
       });
 
-      return response.choices[0].message.content.trim();
+      // Strip any notes or explanations
+      let joke = response.choices[0].message.content.trim();
+      // Remove anything after (Note: or similar
+      joke = joke.split(/\s*\(Note:/i)[0].trim();
+      joke = joke.split(/\s*Note:/i)[0].trim();
+      // Remove quotes if wrapped
+      joke = joke.replace(/^["']|["']$/g, '');
+      
+      return joke;
     }
 
     function getRandomChuckImage() {
