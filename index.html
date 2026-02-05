@@ -202,7 +202,8 @@
       align-items: center;
       justify-content: center;
       padding: 30px;
-      background: rgba(0,0,0,0.4);
+      background: transparent;
+      cursor: ns-resize;
     }
 
     .joke-text {
@@ -213,6 +214,23 @@
       text-align: center;
       line-height: 1.4;
       max-width: 90%;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      user-select: none;
+      padding: 10px 20px;
+      background: rgba(0,0,0,0.4);
+      border-radius: 8px;
+    }
+
+    .drag-hint {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.6);
+      pointer-events: none;
     }
 
     .share-section {
@@ -473,8 +491,9 @@
     <div class="result-section" id="resultSection">
       <div class="image-container" id="imageContainer">
         <canvas id="generatedImage" class="generated-image" width="512" height="512"></canvas>
-        <div class="joke-overlay">
+        <div class="joke-overlay" id="jokeOverlay">
           <p class="joke-text" id="jokeText"></p>
+          <span class="drag-hint">↕ Drag text to reposition</span>
         </div>
       </div>
 
@@ -683,6 +702,8 @@
           imgCtx.drawImage(img, 0, 0, 512, 512);
           
           jokeText.textContent = joke + ' - Chuck Norris';
+          textYPercent = 50; // Reset to center
+          updateTextPosition();
           hideLoading();
           resultSection.classList.add('active');
 
@@ -716,6 +737,58 @@
       }
     });
 
+    // Draggable text position
+    let textYPercent = 50; // default center (0-100)
+    const jokeOverlay = document.getElementById('jokeOverlay');
+    let isDragging = false;
+    let startY = 0;
+    let startPercent = 0;
+
+    function updateTextPosition() {
+      jokeText.style.top = textYPercent + '%';
+      jokeText.style.transform = 'translateX(-50%) translateY(-50%)';
+    }
+
+    jokeOverlay.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      startY = e.clientY;
+      startPercent = textYPercent;
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      const rect = jokeOverlay.getBoundingClientRect();
+      const deltaY = e.clientY - startY;
+      const deltaPercent = (deltaY / rect.height) * 100;
+      textYPercent = Math.max(10, Math.min(90, startPercent + deltaPercent));
+      updateTextPosition();
+    });
+
+    document.addEventListener('mouseup', () => {
+      isDragging = false;
+    });
+
+    // Touch support
+    jokeOverlay.addEventListener('touchstart', (e) => {
+      isDragging = true;
+      startY = e.touches[0].clientY;
+      startPercent = textYPercent;
+    });
+
+    document.addEventListener('touchmove', (e) => {
+      if (!isDragging) return;
+      const rect = jokeOverlay.getBoundingClientRect();
+      const deltaY = e.touches[0].clientY - startY;
+      const deltaPercent = (deltaY / rect.height) * 100;
+      textYPercent = Math.max(10, Math.min(90, startPercent + deltaPercent));
+      updateTextPosition();
+    });
+
+    document.addEventListener('touchend', () => {
+      isDragging = false;
+    });
+
     // Copy joke
     document.getElementById('copyJoke').addEventListener('click', async () => {
       const joke = jokeText.textContent;
@@ -743,7 +816,7 @@
       // Draw image
       ctx.drawImage(srcCanvas, 0, 0);
 
-      // Add dark overlay
+      // Add dark overlay behind text area
       ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -778,7 +851,9 @@
       lines.push(currentLine.trim());
 
       const lineHeight = 40;
-      const startY = canvas.height / 2 - (lines.length - 1) * lineHeight / 2;
+      // Use the dragged position
+      const centerY = (textYPercent / 100) * canvas.height;
+      const startY = centerY - (lines.length - 1) * lineHeight / 2;
 
       lines.forEach((line, i) => {
         ctx.fillText(line, canvas.width / 2, startY + i * lineHeight);
